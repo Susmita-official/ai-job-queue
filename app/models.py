@@ -2,6 +2,8 @@ from enum import Enum
 from typing import Any, Optional
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
+from sqlalchemy import Column, String, DateTime, JSON
+from app.database import Base
 
 # 1. Define the states a job can be in
 class JobStatus(str, Enum):
@@ -39,3 +41,17 @@ class JobResponse(BaseModel):
     updated_at: datetime
     result: Optional[Any] = None
     error: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class JobRecord(Base):
+    # WHY: This tells PostgreSQL exactly what to name the table in the database
+    __tablename__ = "jobs"
+    id = Column(String, primary_key=True)
+    job_type = Column(String)
+    status = Column(String)
+    created_at = Column(DateTime)
+    payload = Column(JSON)
+    result = Column(JSON, nullable=True)
+    error = Column(String,nullable=True)
+    updated_at = Column(DateTime)
+
